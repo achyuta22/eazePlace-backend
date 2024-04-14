@@ -2,18 +2,26 @@ const mongoose = require("mongoose");
 
 const userSchema = mongoose.Schema(
   {
-    firstName: { type: String, require: true },
-    lastName: { type: String, require: true },
-    name: { type: String, require: true },
     email: { type: String, require: true, unique: true },
     password: { type: String, require: true },
+    title: { type: String, require: true },
+    firstName: { type: String, require: true },
+    lastName: { type: String, require: true },
+    instituteEmail: { type: String, require: true },
     mobile: {
       type: String,
       require: true,
     },
+    institute: { type: String, require: true },
+    program: { type: String, requyire: true },
+    year: { type: String },
+    branch: { type: String },
+    collegeId: {
+      type: String,
+    },
     designation: {
       type: String,
-      require: true,
+      default: "Student",
     },
     credits: { type: Number, default: 0 },
     verified: {
@@ -21,13 +29,9 @@ const userSchema = mongoose.Schema(
       default: false,
     },
     resume: [{ type: mongoose.Schema.Types.ObjectId }],
-    collegeId: {
-      type: String,
-      require: true,
-    },
-    branch: { type: String },
-    year: { type: String },
+
     linkedIn: { type: String },
+    github: { type: String },
     pic: {
       type: "String",
       required: true,

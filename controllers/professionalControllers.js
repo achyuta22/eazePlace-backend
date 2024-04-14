@@ -84,6 +84,7 @@ const verificationCode = async (req, res) => {
 //   }
 // };
 const ProfModel = require("../models/professionalModel");
+const professional = require("../models/professionalModel");
 
 const professionalSignup = async (req, res) => {
   console.log("request for prof Signup");
@@ -120,90 +121,242 @@ const professionalSignup = async (req, res) => {
   }
 };
 
-const personalDetails = async (req, res) => {
-  console.log("request to upload personal details");
-  const {
-    id,
-    firstName,
-    lastName,
-    email,
-    mobileNumber,
-    designation,
-    designationProof,
-  } = req.body;
+// const personalDetails = async (req, res) => {
+//   console.log("request to upload personal details");
+//   console.log(req.body.formData);
+//   const {
+//     id,
+//     firstName,
+//     lastName,
+//     email,
+//     mobile,
+//     designation,
+//     designationProof,
+//   } = req.body;
+//   try {
+//     const personalDetails = await ProfModel.findByIdAndUpdate(id, {
+//       personalDetails: {
+//         firstName,
+//         lastName,
+//         email,
+//         mobileNumber,
+//         designation,
+//         designationProof,
+//       },
+//     });
+//     if (personalDetails) {
+//       console.log("updated personal details");
+//       res.send({ message: "succesfully updated details", status: 200 });
+//     } else {
+//       console.log("error occurred while uploading details");
+//       res.send({
+//         message: "error occurred while uploading details",
+//         status: 400,
+//       });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res.send({ message: "error occurred", status: 400 });
+//   }
+// };
+// const organizationDetails = async (req, res) => {
+//   console.log("request to upload personal details");
+//   const {
+//     id,
+//     organizationName,
+//     city,
+//     industry,
+//     description,
+//     logo,
+//     numberOfEmployees,
+//     stipend,
+//     organizationDocuments,
+//     linkedIn,
+//   } = req.body;
+//   try {
+//     const organizationDetails = await ProfModel.findByIdAndUpdate(id, {
+//       organizationDetails: {
+//         organizationName,
+//         city,
+//         industry,
+//         description,
+//         logo,
+//         numberOfEmployees,
+//         stipend,
+//         organizationDocuments,
+//         linkedIn,
+//       },
+//     });
+//     if (organizationDetails) {
+//       console.log("updated organization details");
+//       res.send({ message: "succesfully updated details", status: 200 });
+//     } else {
+//       console.log("error occurred while uploading details");
+//       res.send({
+//         message: "error occurred while uploading details",
+//         status: 400,
+//       });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res.send({ message: "error occurred", status: 400 });
+//   }
+// };
+
+const uploadDetails = async (req, res) => {
+  console.log("req to upload details");
+  const { id } = req.params;
+  const { formData } = req.body;
+  console.log(formData);
   try {
-    const personalDetails = await ProfModel.findByIdAndUpdate(id, {
-      personalDetails: {
-        firstName,
-        lastName,
-        email,
-        mobileNumber,
-        designation,
-        designationProof,
+    // const user=professional.findByIdAndUpdate(id,{
+    //   personalDetails:{
+
+    //   }
+    // })
+    const user = await professional.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          "personalDetails.firstName": formData.firstName,
+          "personalDetails.lastName": formData.lastName,
+          "personalDetails.email": formData.email,
+          "personalDetails.mobile": formData.mobile,
+          "personalDetails.designation": formData.designation,
+          "personalDetails.designationProof": formData.designationProof,
+          "organizationDetails.Name": formData.orgName,
+          "organizationDetails.city": formData.orgCity,
+          "organizationDetails.industry": formData.industry,
+          "organizationDetails.description": formData.orgDescription,
+          "organizationDetails.logo": formData.orgLogo,
+          "organizationDetails.numberOfEmployees": formData.employeesCount,
+          "organizationDetails.stipend": formData.minimumStipend,
+          "organizationDetails.Documents": formData.orgDocs,
+          "organizationDetails.linkedIn": formData.linkedIn,
+          "organizationDetails.instagram": formData.instagram,
+          "organizationDetails.webPageLink": formData.webpageLink,
+        },
       },
-    });
-    if (personalDetails) {
-      console.log("updated personal details");
-      res.send({ message: "succesfully updated details", status: 200 });
+      { new: true }
+    );
+    console.log({ user });
+    if (user) {
+      res.send({ message: user, status: 200 });
     } else {
-      console.log("error occurred while uploading details");
-      res.send({
-        message: "error occurred while uploading details",
-        status: 400,
-      });
+      res.send({ message: "unable to update details", status: 400 });
     }
   } catch (error) {
     console.log(error);
-    res.send({ message: "error occurred", status: 400 });
+    res.send({ message: "unexpected error ocurred", status: 400 });
   }
 };
-const organizationDetails = async (req, res) => {
-  console.log("request to upload personal details");
-  const {
-    id,
-    organizationName,
-    city,
-    industry,
-    description,
-    logo,
-    numberOfEmployees,
-    stipend,
-    organizationDocuments,
-    linkedIn,
-  } = req.body;
-  try {
-    const organizationDetails = await ProfModel.findByIdAndUpdate(id, {
-      organizationDetails: {
-        organizationName,
-        city,
-        industry,
-        description,
-        logo,
-        numberOfEmployees,
-        stipend,
-        organizationDocuments,
-        linkedIn,
-      },
-    });
-    if (organizationDetails) {
-      console.log("updated organization details");
-      res.send({ message: "succesfully updated details", status: 200 });
-    } else {
-      console.log("error occurred while uploading details");
-      res.send({
-        message: "error occurred while uploading details",
-        status: 400,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.send({ message: "error occurred", status: 400 });
-  }
-};
+// const postIntern = async (req, res) => {
+//   console.log("req for posting intern by proffessional");
+//   const {
+//     id,
+//     title,
+//     skills,
+//     type,
+//     description,
+//     whoCanApply,
+//     responsibilities,
+//     place,
+//     openings,
+//     startDate,
+//     duration,
+//     stipend,
+//     coverLetterQuestion,
+//     assesmentQuestion,
+//   } = req.body;
+//   try {
+//     var internPost = await Intern.create({
+//       addedBy: id,
+//       // addedByModel: "Prof",
+//       title,
+//       skills,
+//       type,
+//       description,
+//       whoCanApply,
+//       responsibilities,
+//       place,
+//       openings,
+//       startDate,
+//       duration,
+//       stipend,
+//       coverLetterQuestion,
+//       assesmentQuestion,
+//     });
+//     // internPost = internPost.populate("addedBy");
+//     if (internPost) {
+//       res.send({ message: internPost, status: 200 });
+//     } else {
+//       console.log("error while creating intern post");
+//       res.send({ message: "error while creating intern Post", status: 400 });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res.send({ message: "unecpected eror occurred", status: 400 });
+//   }
+// };
+// const postProject = async (req, res) => {
+//   console.log("req for posting project by prof");
+//   const {
+//     id,
+//     title,
+//     skills,
+//     type,
+//     description,
+//     whoCanApply,
+//     place,
+//     openings,
+//     startDate,
+//     duration,
+//     paid,
+//     stipend,
+//     coverLetterQuestion,
+//     assesmentQuestion,
+//   } = req.body;
+//   try {
+//     var projectPost = await project.create({
+//       addedBy: id,
+//       // addedByModel: "Prof",
+//       title,
+//       skills,
+//       type,
+//       description,
+//       whoCanApply,
+//       place,
+//       openings,
+//       startDate,
+//       duration,
+//       stipend,
+//       coverLetterQuestion,
+//       assesmentQuestion,
+//     });
+//     // internPost = internPost.populate("addedBy");
+//     if (projectPost) {
+//       res.send({ message: projectPost, status: 200 });
+//     } else {
+//       console.log("error while creating project post");
+//       res.send({ message: "error while creating project Post", status: 400 });
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res.send({ message: "unecpected eror occurred", status: 400 });
+//   }
+// };
 const postIntern = async (req, res) => {
-  console.log("req for posting intern by proffessional");
+  const { id } = req.params;
+  // const prof = await Prof.findOne(id);
+  const prof = await professional.findById(id);
+
+  if (!prof) {
+    console.log("register as professional first");
+    res.send({ message: "register as a prof", status: 400 });
+    return;
+  }
+  console.log("req for posting intern by prof");
   const {
-    id,
     title,
     skills,
     type,
@@ -235,8 +388,10 @@ const postIntern = async (req, res) => {
       stipend,
       coverLetterQuestion,
       assesmentQuestion,
+      createdBy: "professional",
     });
     // internPost = internPost.populate("addedBy");
+    console.log(internPost);
     if (internPost) {
       res.send({ message: internPost, status: 200 });
     } else {
@@ -249,13 +404,22 @@ const postIntern = async (req, res) => {
   }
 };
 const postProject = async (req, res) => {
+  const { id } = req.params;
+  const prof = await professional.findById(id);
+  if (!prof) {
+    console.log("register as prof first");
+    res.send({ message: "register as a prof", status: 400 });
+    return;
+  }
   console.log("req for posting project by prof");
   const {
-    id,
     title,
     skills,
     type,
+    workType,
     description,
+    responsibilities,
+    perks,
     whoCanApply,
     place,
     openings,
@@ -263,6 +427,7 @@ const postProject = async (req, res) => {
     duration,
     paid,
     stipend,
+    ppo,
     coverLetterQuestion,
     assesmentQuestion,
   } = req.body;
@@ -273,17 +438,24 @@ const postProject = async (req, res) => {
       title,
       skills,
       type,
+      workType,
       description,
       whoCanApply,
+      responsibilities,
       place,
       openings,
+      perks,
       startDate,
       duration,
+      paid,
       stipend,
+      ppo,
       coverLetterQuestion,
       assesmentQuestion,
+      createdBy: "professional",
     });
     // internPost = internPost.populate("addedBy");
+    console.log(projectPost);
     if (projectPost) {
       res.send({ message: projectPost, status: 200 });
     } else {
@@ -295,12 +467,37 @@ const postProject = async (req, res) => {
     res.send({ message: "unecpected eror occurred", status: 400 });
   }
 };
+const allInternsPosted = async (req, res) => {
+  console.log("req for all internships posted by professor");
+  const { Id } = req.params;
+  try {
+    const internsPosted = await Intern.find({ addedBy: Id });
+    res.send({ message: internsPosted, status: 200 });
+  } catch (error) {
+    console.log(error);
+    res.send({ message: "Error occurred", status: 400 });
+  }
+};
+const allProjectsPosted = async (req, res) => {
+  console.log("req for all projects posted by professor");
+  const { Id } = req.params;
+  try {
+    const projectsPosted = await project.find({ addedBy: Id });
+    res.send({ message: projectsPosted, status: 200 });
+  } catch (error) {
+    console.log(error);
+    res.send({ message: "Error occurred", status: 400 });
+  }
+};
 
 module.exports = {
   verificationCode,
   professionalSignup,
-  personalDetails,
-  organizationDetails,
+  // personalDetails,
+  // organizationDetails,
+  uploadDetails,
   postIntern,
   postProject,
+  allInternsPosted,
+  allProjectsPosted,
 };

@@ -1,11 +1,14 @@
 const bodyParser = require("body-parser");
 const Prof = require("../models/profModel");
 const bcrypt = require("bcrypt");
+const Response = require("../models/responsesModel");
 const generateToken = require("../config/generateToken");
 const saltRounds = 10;
 var nodemailer = require("nodemailer");
 const Intern = require("../models/internModel");
 const project = require("../models/projectModel");
+const professional = require("../models/professionalModel");
+const ProfModel = require("../models/professionalModel");
 const verificationCodes = {};
 var transporter = nodemailer.createTransport({
   service: "gmail",
@@ -31,11 +34,21 @@ const profSignup = async (req, res) => {
         const newProf = await Prof.create({
           email: email,
           password: hash,
-          verified: true,
+          verified: false,
           type: "professor",
         });
         if (newProf) {
-          res.send({ message: newProf, status: 200 });
+          res.send({
+            message: {
+              _id: newProf._id,
+              email: newProf.email,
+              password: newProf.password,
+              verified: newProf.verified,
+              credits: newProf.credits,
+              token: await generateToken(newProf._id),
+            },
+            status: 200,
+          });
         } else {
           res.send({ message: "error while creating new user", status: 400 });
         }
@@ -85,31 +98,39 @@ const verificationCode = async (req, res) => {
 const uploadDetails = async (req, res) => {
   const {
     id,
-    type,
+    title,
     firstName,
     lastName,
-    institueName,
-    InstituteEmailId,
+    instituteName,
+    instituteEmailId,
     department,
     position,
     fieldOfExpertise,
-    awards,
+    mobile,
+    pic,
+    proofId,
+    linkedIn,
+    page,
   } = req.body;
   try {
-    const profDetails = Prof.findByIdAndUpdate(id, {
-      type,
+    const profDetails = await Prof.findByIdAndUpdate(id, {
+      title,
       firstName,
       lastName,
-      institueName,
-      InstituteEmailId,
+      instituteName,
+      instituteEmailId,
       department,
       position,
       fieldOfExpertise,
-      awards,
+      mobile,
+      pic,
+      proofId,
+      linkedIn,
+      page,
     });
     if (profDetails) {
       console.log("updated prof details");
-      res.send({ message: "succesfully updated details", status: 200 });
+      res.send({ message: profDetails, status: 200 });
     } else {
       console.log("error occurred while uploading details");
       res.send({
@@ -124,9 +145,18 @@ const uploadDetails = async (req, res) => {
 };
 
 const postIntern = async (req, res) => {
+  const { id } = req.params;
+  // const prof = await Prof.findOne(id);
+  const prof = await Prof.findById(id);
+  const professional = await ProfModel.findById(id);
+
+  if (!prof && !professional) {
+    console.log("register as prof or professional first");
+    res.send({ message: "register as a prof or professional", status: 400 });
+    return;
+  }
   console.log("req for posting intern by prof");
   const {
-    id,
     title,
     skills,
     type,
@@ -158,8 +188,10 @@ const postIntern = async (req, res) => {
       stipend,
       coverLetterQuestion,
       assesmentQuestion,
+      createdBy: "prof",
     });
     // internPost = internPost.populate("addedBy");
+    console.log(internPost);
     if (internPost) {
       res.send({ message: internPost, status: 200 });
     } else {
@@ -172,14 +204,22 @@ const postIntern = async (req, res) => {
   }
 };
 const postProject = async (req, res) => {
+  const { id } = req.params;
+  const prof = await Prof.findById(id);
+  if (!prof) {
+    console.log("register as prof first");
+    res.send({ message: "register as a prof", status: 400 });
+    return;
+  }
   console.log("req for posting project by prof");
   const {
-    id,
     title,
     skills,
     type,
+    workType,
     description,
     responsibilities,
+    perks,
     whoCanApply,
     place,
     openings,
@@ -187,6 +227,7 @@ const postProject = async (req, res) => {
     duration,
     paid,
     stipend,
+    ppo,
     coverLetterQuestion,
     assesmentQuestion,
   } = req.body;
@@ -197,18 +238,24 @@ const postProject = async (req, res) => {
       title,
       skills,
       type,
+      workType,
       description,
       whoCanApply,
       responsibilities,
       place,
       openings,
+      perks,
       startDate,
       duration,
+      paid,
       stipend,
+      ppo,
       coverLetterQuestion,
       assesmentQuestion,
+      createdBy: "prof",
     });
     // internPost = internPost.populate("addedBy");
+    console.log(projectPost);
     if (projectPost) {
       res.send({ message: projectPost, status: 200 });
     } else {
@@ -222,13 +269,53 @@ const postProject = async (req, res) => {
 };
 const allInternsPosted = async (req, res) => {
   console.log("req for all internships posted by professor");
-  const { Id } = req.body;
+  const { Id } = req.params;
   try {
     const internsPosted = await Intern.find({ addedBy: Id });
+    console.log(internsPosted);
     res.send({ message: internsPosted, status: 200 });
   } catch (error) {
     console.log(error);
     res.send({ message: "Error occurred", status: 400 });
+  }
+};
+const allProjectsPosted = async (req, res) => {
+  console.log("req for all projects posted by professor");
+  const { Id } = req.params;
+  try {
+    const projectsPosted = await project.find({ addedBy: Id });
+    res.send({ message: projectsPosted, status: 200 });
+  } catch (error) {
+    console.log(error);
+    res.send({ message: "Error occurred", status: 400 });
+  }
+};
+const responses = async (req, res) => {
+  const { Id } = req.params;
+  try {
+    const responses = await Response.find({ applicationId: Id }).populate(
+      "appliedBy"
+    );
+    console.log(responses);
+    res.send({ message: responses, status: 200 });
+  } catch (error) {}
+};
+
+const shortList = async (req, res) => {
+  const { Id } = req.params;
+  console.log(Id);
+  const status = await Response.findByIdAndUpdate(
+    Id,
+    {
+      status: "shortlisted",
+    },
+    { new: true }
+  );
+  console.log(status);
+  if (status) {
+    res.send({ message: "succesfully shortlisted", status: 200 });
+  } else {
+    res.send({ message: "Error while shortlisting", status: 400 });
   }
 };
 
@@ -239,4 +326,7 @@ module.exports = {
   postIntern,
   postProject,
   allInternsPosted,
+  allProjectsPosted,
+  responses,
+  shortList,
 };

@@ -8,13 +8,19 @@ const {
   postIntern,
   postProject,
   allInternsPosted,
+  allProjectsPosted,
+  responses,
+  shortList,
 } = require("../controllers/profControllers");
 
 router.route("/signUp").post(profSignup);
 router.route("/verificationCode").post(verificationCode);
 router.route("/uploadDetails").post(uploadDetails);
-router.route("/postIntern").post(postIntern);
-router.route("/postProject").post(postProject);
-router.route("/allInterns").get(allInternsPosted);
+router.route("/postIntern/:id").post(postIntern);
+router.route("/postProject/:id").post(postProject);
+router.route("/allInterns/:Id").get(allInternsPosted);
+router.route("/allProjects/:Id").get(allProjectsPosted);
+router.route("/responses/:Id").get(responses);
+router.route("/shortList/:Id").post(shortList);
 
 module.exports = router;

@@ -7,16 +7,20 @@ const {
   studentDetails,
   verificationCode,
   emailVerify,
-  applyToIntern,
+  applyTo,
   searchInterns,
   internDetails,
+  projectsApplied,
+  appliedTo,
 } = require("../controllers/userControllers");
 router.route("/signup").post(studentSignup);
 router.route("/verificationCode").post(verificationCode);
 router.route("/emailVerify").post(emailVerify);
 router.route("/uploadDetails").post(studentDetails);
-router.route("/applyToIntern").post(applyToIntern);
+router.route("/applyTo").post(applyTo);
 router.route("/filter").get(searchInterns);
 router.route("/intern/:id").get(internDetails);
+// router.route("projects").get(projectsApplied);
+router.route("/appliedTo").get(appliedTo);
 
 module.exports = router;

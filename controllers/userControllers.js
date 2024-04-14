@@ -19,21 +19,19 @@ var transporter = nodemailer.createTransport({
 const studentSignup = async (req, res) => {
   console.log("request for signup");
   console.log(req.body);
-  const { email, password, name, code } = req.body;
+  const { email, password, code } = req.body;
   if (verificationCodes[email] == code) {
     try {
       const userExists = await User.findOne({ email });
       if (userExists) {
-        console.log("email registered");
+        console.log("email already registered");
         res.send({ message: "email already registered", status: 400 });
       } else {
         const hash = bcrypt.hashSync(password, saltRounds);
 
         const user = await User.create({
-          name: name,
           email: email,
           password: hash,
-          verified: true,
           type: "student",
         });
         console.log(user);
@@ -41,12 +39,10 @@ const studentSignup = async (req, res) => {
           res.send({
             message: {
               _id: user._id,
-
-              name: user.name,
               email: user.email,
               password: user.password,
               verified: user.verified,
-
+              credits: user.credits,
               token: await generateToken(user._id),
             },
             status: 201,
@@ -67,10 +63,13 @@ const studentSignup = async (req, res) => {
 const studentDetails = async (req, res) => {
   const {
     id,
+    title,
     firstName,
     lastName,
-    institute,
+    instituteEmail,
     mobile,
+    institute,
+    program,
     year,
     branch,
     collegeId,
@@ -82,15 +81,19 @@ const studentDetails = async (req, res) => {
     var user = await User.findByIdAndUpdate(
       id,
       {
+        title,
         firstName,
         lastName,
-        institute,
+        instituteEmail,
         mobile,
+        institute,
+        program,
         year,
         branch,
         collegeId,
         pic,
         linkedIn,
+        gitHub,
       },
       { new: true }
     );
@@ -160,8 +163,10 @@ const emailVerify = async (req, res) => {
   }
 };
 
-const applyToIntern = async (req, res) => {
+const applyTo = async (req, res) => {
   console.log("req for applying intern");
+  const { type } = req.query;
+  console.log(type);
   const { internId, userId, coverLetter, assesmentSolution } = req.body;
   try {
     const applied = await Response.findOne({
@@ -177,6 +182,7 @@ const applyToIntern = async (req, res) => {
       const apply = Response.create({
         applicationId: internId,
         appliedBy: userId,
+        type: type,
         coverLetter,
         assesmentSolution,
       });
@@ -196,30 +202,68 @@ const applyToIntern = async (req, res) => {
 
 const searchInterns = async (req, res) => {
   console.log("req for filter");
-  const { skills, location, title } = req.query;
-  console.log(skills, location, title);
+  const { skills, location, title, type } = req.query;
+  console.log(skills, location, title, type);
   // const { location, title } = req.body;
   // console.log(req.body);
-  try {
-    // const interns = await Intern.find({ location, title });
-    // const interns = await Intern.find({
-    //   $or: [{ place: location }, { title: title }],
-    // });
-    const interns = await Intern.find({
-      $or: [
-        { place: { $regex: new RegExp(location, "i") } },
-        // { title: { $regex: new RegExp(title, "i") } },
-        { skills: { $in: skills } },
-        // {
-        //   skills: { $elemMatch: { $regex: new RegExp(skills.join("|"), "i") } },
-        // },
-      ],
-    });
-    console.log(interns);
-    if (interns) {
-      res.send({ message: interns, status: 200 });
+  if (type == "intern") {
+    try {
+      // const interns = await Intern.find({ location, title });
+      // const interns = await Intern.find({
+      //   $or: [{ place: location }, { title: title }],
+      // });
+
+      const interns = await Intern.find({
+        $or: [
+          { place: { $regex: new RegExp(location, "i") } },
+          // { title: { $regex: new RegExp(title, "i") } },
+          { skills: { $in: skills } },
+          // {
+          //   skills: { $elemMatch: { $regex: new RegExp(skills.join("|"), "i") } },
+          // },
+        ],
+      });
+      console.log(interns);
+      if (interns) {
+        res.send({ message: interns, status: 200 });
+      }
+    } catch (error) {
+      console.log(error);
+      res.send({ message: "unable to find projects", status: 400 });
     }
-  } catch (error) {}
+  } else if (type == "project") {
+    try {
+      // const interns = await Intern.find({ location, title });
+      // const interns = await Intern.find({
+      //   $or: [{ place: location }, { title: title }],
+      // });
+
+      const projects = await project.find({
+        $or: [
+          { place: { $regex: new RegExp(location, "i") } },
+          // { title: { $regex: new RegExp(title, "i") } },
+          { skills: { $in: skills } },
+          // {
+          //   skills: { $elemMatch: { $regex: new RegExp(skills.join("|"), "i") } },
+          // },
+        ],
+      });
+      console.log(projects);
+      if (projects) {
+        res.send({ message: projects, status: 200 });
+      }
+    } catch (error) {
+      console.log(error);
+      res.send({ message: "unable to find projects", status: 400 });
+    }
+  } else {
+    // Handle the case when type is neither "intern" nor "project"
+    res.send({
+      message:
+        "search only for projects or interns. cant help with other than these two",
+      status: 400,
+    });
+  }
 };
 
 const internDetails = async (req, res) => {
@@ -240,12 +284,38 @@ const internDetails = async (req, res) => {
   }
 };
 
+// const projectsApplied = async (req, res) => {
+//   const { id } = req.body;
+//   try {
+//     const projects = await Response.find({
+//       appliedBy: id,
+//       type: "project",
+//     });
+//     console.log(projects);
+//   } catch (error) {}
+// };
+const appliedTo = async (req, res) => {
+  console.log("req for applied");
+  const { search, id } = req.query;
+  console.log(search, id);
+  try {
+    const appliedTo = await Response.find({
+      appliedBy: id,
+      type: search,
+    });
+    console.log(appliedTo);
+    res.send({ message: appliedTo, status: 200 });
+  } catch (error) {
+    res.send({ message: "error occured", status: 400 });
+  }
+};
 module.exports = {
   studentSignup,
   studentDetails,
   verificationCode,
   emailVerify,
-  applyToIntern,
+  applyTo,
   searchInterns,
   internDetails,
+  appliedTo,
 };

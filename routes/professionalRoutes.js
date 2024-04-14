@@ -5,17 +5,23 @@ const bcrypt = require("bcrypt");
 const {
   verificationCode,
   professionalSignup,
-  personalDetails,
-  organizationDetails,
+  // personalDetails,
+  // organizationDetails,
   postIntern,
   postProject,
+  uploadDetails,
+  allInternsPosted,
+  allProjectsPosted,
 } = require("../controllers/professionalControllers");
 
 router.route("/signUp").post(professionalSignup);
 router.route("/verificationCode").post(verificationCode);
-router.route("/personalDetails").post(personalDetails);
-router.route("/organizationDetails").post(organizationDetails);
-router.route("/postInternship").post(postIntern);
-router.route("/postProject").post(postProject);
+// router.route("/uploadDetails").post(uploadDetails);
+// router.route("/organizationDetails").post(organizationDetails);
+router.route("/uploadDetails/:id").post(uploadDetails);
+router.route("/postIntern/:id").post(postIntern);
+router.route("/postProject/:id").post(postProject);
+router.route("/allInternsPosted/:Id").get(allInternsPosted);
+router.route("/allProjectsPosted/:Id").get(allProjectsPosted);
 
 module.exports = router;

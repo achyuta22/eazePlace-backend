@@ -22,7 +22,6 @@ const profSchema = mongoose.Schema(
     },
     position: { type: String, require: true },
     fieldOfExpertise: { type: String, require: true },
-    awards: { type: String, require: true },
     credits: { type: Number, default: 0 },
     verified: {
       type: Boolean,
@@ -38,6 +37,9 @@ const profSchema = mongoose.Schema(
       default:
         "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
     },
+    proofId: { type: String },
+    page: { type: String },
+    type: { type: String, default: "professor" },
   },
   { timestamps: true }
 );
