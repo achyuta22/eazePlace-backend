@@ -1,5 +1,37 @@
 const mongoose = require("mongoose");
+const internshipSchema=mongoose.Schema({
+  internId:{
+    type:String,
+    require:true
+  },
+  accepted:{
+    type:Boolean,
+    default:false,
+  },
+})
+const resumeIntershipSchema=mongoose.Schema({
+  title: String,
+  company: String,
+  description: String,
+  startDate:Date,
+  endDate:Date,
+  verified:{
+    type:Boolean,
+    default:false
+  }
+})
+const resumeProjectSchema = new Schema({
+  title: String,
+  company: String,
+  description: String,
+  startDate:Date,
+  endDate:Date,
+  verified:{
+    type:Boolean,
+    default:false,
+  }
 
+});
 const userSchema = mongoose.Schema(
   {
     firstName: { type: String, require: true },
@@ -34,6 +66,8 @@ const userSchema = mongoose.Schema(
       default:
         "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
     },
+    resumeInterships:[resumeIntershipSchema],
+    resumeProjects:[resumeProjectSchema]
   },
   { timestamps: true }
 );
