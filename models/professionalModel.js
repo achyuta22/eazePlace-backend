@@ -31,7 +31,7 @@ const organizationDetailsSchema = new Schema({
 // Define the main schema for the user
 const professionalSchema = new Schema({
   email: { type: String, required: true },
-  credits: { type: Number, default: 0 },
+  credits: { type: Number, default: 100 },
   password: { type: String, required: true },
   verified: { type: Boolean, default: false },
   type: { type: String, default: "professional" },
