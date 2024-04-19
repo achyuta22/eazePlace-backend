@@ -19,7 +19,7 @@ const userSchema = mongoose.Schema(
     collegeId: {
       type: String,
     },
-    designation: {
+    type: {
       type: String,
       default: "Student",
     },

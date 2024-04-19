@@ -370,8 +370,11 @@ const postIntern = async (req, res) => {
     stipend,
     coverLetterQuestion,
     assesmentQuestion,
+    credits,
   } = req.body;
   try {
+    prof.credits -= credits;
+    await prof.save();
     var internPost = await Intern.create({
       addedBy: id,
       // addedByModel: "Prof",
@@ -393,7 +396,7 @@ const postIntern = async (req, res) => {
     // internPost = internPost.populate("addedBy");
     console.log(internPost);
     if (internPost) {
-      res.send({ message: internPost, status: 200 });
+      res.send({ message: prof, status: 200 });
     } else {
       console.log("error while creating intern post");
       res.send({ message: "error while creating intern Post", status: 400 });
@@ -411,7 +414,7 @@ const postProject = async (req, res) => {
     res.send({ message: "register as a prof", status: 400 });
     return;
   }
-  console.log("req for posting project by prof");
+  console.log("req for posting project by professional");
   const {
     title,
     skills,
@@ -430,8 +433,12 @@ const postProject = async (req, res) => {
     ppo,
     coverLetterQuestion,
     assesmentQuestion,
+    credits,
   } = req.body;
   try {
+    prof.credits -= credits;
+    await prof.save();
+    console.log(prof);
     var projectPost = await project.create({
       addedBy: id,
       // addedByModel: "Prof",
@@ -457,7 +464,7 @@ const postProject = async (req, res) => {
     // internPost = internPost.populate("addedBy");
     console.log(projectPost);
     if (projectPost) {
-      res.send({ message: projectPost, status: 200 });
+      res.send({ message: prof, status: 200 });
     } else {
       console.log("error while creating project post");
       res.send({ message: "error while creating project Post", status: 400 });

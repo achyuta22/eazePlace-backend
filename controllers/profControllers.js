@@ -113,21 +113,25 @@ const uploadDetails = async (req, res) => {
     page,
   } = req.body;
   try {
-    const profDetails = await Prof.findByIdAndUpdate(id, {
-      title,
-      firstName,
-      lastName,
-      instituteName,
-      instituteEmailId,
-      department,
-      position,
-      fieldOfExpertise,
-      mobile,
-      pic,
-      proofId,
-      linkedIn,
-      page,
-    });
+    const profDetails = await Prof.findByIdAndUpdate(
+      id,
+      {
+        title,
+        firstName,
+        lastName,
+        instituteName,
+        instituteEmailId,
+        department,
+        position,
+        fieldOfExpertise,
+        mobile,
+        pic,
+        proofId,
+        linkedIn,
+        page,
+      },
+      { new: true }
+    );
     if (profDetails) {
       console.log("updated prof details");
       res.send({ message: profDetails, status: 200 });
@@ -148,14 +152,15 @@ const postIntern = async (req, res) => {
   const { id } = req.params;
   // const prof = await Prof.findOne(id);
   const prof = await Prof.findById(id);
-  const professional = await ProfModel.findById(id);
+  // const professional = await ProfModel.findById(id);
 
-  if (!prof && !professional) {
+  if (!prof) {
     console.log("register as prof or professional first");
     res.send({ message: "register as a prof or professional", status: 400 });
     return;
   }
   console.log("req for posting intern by prof");
+
   const {
     title,
     skills,
@@ -170,8 +175,14 @@ const postIntern = async (req, res) => {
     stipend,
     coverLetterQuestion,
     assesmentQuestion,
+    credits,
   } = req.body;
   try {
+    if (prof) {
+      prof.credits -= credits;
+      await prof.save();
+    }
+
     var internPost = await Intern.create({
       addedBy: id,
       // addedByModel: "Prof",
@@ -193,7 +204,7 @@ const postIntern = async (req, res) => {
     // internPost = internPost.populate("addedBy");
     console.log(internPost);
     if (internPost) {
-      res.send({ message: internPost, status: 200 });
+      res.send({ message: prof, status: 200 });
     } else {
       console.log("error while creating intern post");
       res.send({ message: "error while creating intern Post", status: 400 });
@@ -211,6 +222,7 @@ const postProject = async (req, res) => {
     res.send({ message: "register as a prof", status: 400 });
     return;
   }
+
   console.log("req for posting project by prof");
   const {
     title,
@@ -230,8 +242,11 @@ const postProject = async (req, res) => {
     ppo,
     coverLetterQuestion,
     assesmentQuestion,
+    credits,
   } = req.body;
   try {
+    prof.credits -= credits;
+    await prof.save();
     var projectPost = await project.create({
       addedBy: id,
       // addedByModel: "Prof",
@@ -257,7 +272,7 @@ const postProject = async (req, res) => {
     // internPost = internPost.populate("addedBy");
     console.log(projectPost);
     if (projectPost) {
-      res.send({ message: projectPost, status: 200 });
+      res.send({ message: prof, status: 200 });
     } else {
       console.log("error while creating project post");
       res.send({ message: "error while creating project Post", status: 400 });

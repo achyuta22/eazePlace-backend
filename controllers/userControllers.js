@@ -77,6 +77,7 @@ const studentDetails = async (req, res) => {
     linkedIn,
     gitHub,
   } = req.body;
+  console.log(req.body);
   try {
     var user = await User.findByIdAndUpdate(
       id,
@@ -168,6 +169,11 @@ const applyTo = async (req, res) => {
   const { type } = req.query;
   console.log(type);
   const { internId, userId, coverLetter, assesmentSolution } = req.body;
+  const student = await User.findById(userId);
+  if (!student) {
+    res.send({ message: "be a student to apply ", status: 400 });
+    return;
+  }
   try {
     const applied = await Response.findOne({
       applicationId: internId,
@@ -187,8 +193,15 @@ const applyTo = async (req, res) => {
         assesmentSolution,
       });
       if (apply) {
+        if (type == "project") {
+          student.credits -= 3;
+          await student.save();
+        } else {
+          student.credits -= 5;
+          await student.save();
+        }
         console.log("applied succesfuly");
-        res.send({ message: "succesfully sent yoyr application", status: 200 });
+        res.send({ message: student, status: 200 });
       } else {
         console.log("error while applying ");
         res.send({ message: "error while applying", status: 400 });
@@ -267,16 +280,29 @@ const searchInterns = async (req, res) => {
 };
 
 const internDetails = async (req, res) => {
+  console.log(req.params.type, "gyugfciyughfviug");
   console.log("hi");
   try {
-    const { id } = req.params;
-    console.log(id);
-    const intern = await Intern.findById(id);
-    console.log(intern);
-    if (intern) {
-      res.send({ message: intern, status: 200 });
-    } else {
-      res.send({ message: "no internship found", status: 400 });
+    if (req.params.type == "intern") {
+      const { id } = req.params;
+      console.log(id);
+      const intern = await Intern.findById(id);
+      console.log(intern);
+      if (intern) {
+        res.send({ message: intern, status: 200 });
+      } else {
+        res.send({ message: "no internship found", status: 400 });
+      }
+    } else if (req.params.type == "project") {
+      const { id } = req.params;
+      console.log(id);
+      const intern = await project.findById(id);
+      console.log(intern);
+      if (intern) {
+        res.send({ message: intern, status: 200 });
+      } else {
+        res.send({ message: "no project found", status: 400 });
+      }
     }
   } catch (error) {
     console.error(error);
