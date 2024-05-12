@@ -1,7 +1,8 @@
 const User = require("../models/userModel.js");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
+const JWT_SECRET_KEY = "123"
+const saltRounds = 10;
 require("dotenv").config();
 const nodemailer = require('nodemailer')
 const userOTP = require("../models/userOTP.js");
@@ -38,7 +39,7 @@ const professional = require("../models/professionalModel.js");
 // };
 const login = async (req, res, next) => {
   const { email, password } = req.body;
-  const existingUser = await User.findOne({ email: email });
+  let existingUser = await User.findOne({ email: email });
   if(!existingUser)
   {
     existingUser = await Prof.findOne({email:email})
@@ -55,7 +56,7 @@ const login = async (req, res, next) => {
       existingUser.password
     );
     if (!isPasswordCorrect) {
-      return res.status(404).json({ message: "wrong password" });
+      return res.status(400).json({ message: "wrong password" });
     }
     const token = jwt.sign({ id: existingUser._id }, JWT_SECRET_KEY, {
       expiresIn: "1hr",
@@ -69,15 +70,15 @@ const login = async (req, res, next) => {
 
     return res
       .status(200)
-      .json({ message: "Login sucessfully", user: existingUser, token});
+      .json({ message: "Login sucessfully", user: existingUser});
   }
 };
 const verifyLogin = async (req, res, next) => {
   const cookies = req.headers.cookie;
-  // console.log((cookies))
+  console.log((cookies))
   const token = String(cookies).split("=")[1];
   if (!token) {
-    return res.status(404).json({ message: "Token not found" });
+    return res.send({ message: "Token not found",status:404});
   }
   console.log(token)
   jwt.verify(String(token), JWT_SECRET_KEY, (err, user) => {
@@ -129,7 +130,7 @@ const logout=async(req,res,next)=>{
   const cookies = req.headers.cookie;
   const token = String(cookies).split("=")[1];
   if (!token) {
-    return res.status(404).json({ message: "Token not found" });
+    return res.status(200).json({ message: "Token not found" });
   }
   jwt.verify(String(token), JWT_SECRET_KEY, (err, user) => {
     if (err) {

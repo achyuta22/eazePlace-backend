@@ -3,6 +3,7 @@ const axios = require("axios");
 const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const profRoutes = require("./routes/profRoutes");
+const resumeRoutes = require("./routes/resumeRoutes")
 const professionalRoutes = require("./routes/professionalRoutes");
 const cookieParser = require("cookie-parser")
 const bodyParser = require("body-parser");
@@ -21,6 +22,7 @@ app.use(
 app.use(bodyParser());
 app.use("/api/students", userRoutes);
 app.use("/api/profs", profRoutes);
+app.use('/api/resume',resumeRoutes)
 app.use("/api/professional", professionalRoutes);
 app.use("/api", loginRoutes)
 app.listen(process.env.PORT, () => {
