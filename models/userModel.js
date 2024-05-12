@@ -1,36 +1,47 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
-const internshipSchema = mongoose.Schema({
-  internId: {
-    type: String,
-    require: true,
+const Schema = mongoose.Schema
+const internshipSchema=mongoose.Schema({
+  internId:{
+    type:String,
+    require:true
   },
-  accepted: {
-    type: Boolean,
-    default: false,
+  accepted:{
+    type:Boolean,
+    default:false,
   },
-});
-const resumeIntershipSchema = mongoose.Schema({
+})
+const resumeIntershipSchema=mongoose.Schema({
   title: String,
   company: String,
   description: String,
-  startDate: Date,
-  endDate: Date,
-  verified: {
-    type: Boolean,
-    default: false,
+  startDate:Date,
+  endDate:Date,
+  verified:{
+    type:Boolean,
+    default:false
   },
-});
+  internId:String,
+status:{
+  type:Boolean,
+  default:false
+}
+})
 const resumeProjectSchema = new Schema({
   title: String,
   company: String,
   description: String,
-  startDate: Date,
-  endDate: Date,
-  verified: {
-    type: Boolean,
-    default: false,
+  startDate:Date,
+  endDate:Date,
+  verified:{
+    type:Boolean,
+    default:false,
   },
+  projectId:String,
+  status:{
+    type:Boolean,
+    default:false
+  }
+
 });
 const userSchema = mongoose.Schema(
   {
@@ -70,8 +81,8 @@ const userSchema = mongoose.Schema(
       default:
         "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
     },
-    resumeInterships: [resumeIntershipSchema],
-    resumeProjects: [resumeProjectSchema],
+    resumeInterships:[resumeIntershipSchema],
+    resumeProjects:[resumeProjectSchema]
   },
   { timestamps: true }
 );
